@@ -29,6 +29,24 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+
+    const db = client.db('valunteerManagement')
+    const volunteerCollection = db.collection('volunteers');
+
+    // save a volunteer data in db
+    app.post('/add-volunteer', async (req,res) => {
+        const volunteerData = req.body
+        const result = await volunteerCollection.insertOne(volunteerData)
+        console.log(result);
+        res.send(result)
+    })
+
+    // get all volunteer data from db
+    app.get('/volunteers',async(req,res)=> {
+        const result = await volunteerCollection.find().toArray()
+        res.send(result);
+    })
+
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
@@ -38,7 +56,7 @@ async function run() {
     );
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
