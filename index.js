@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 require('dotenv').config();
@@ -29,22 +29,37 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-
-    const db = client.db('valunteerManagement')
+    const db = client.db('valunteerManagement');
     const volunteerCollection = db.collection('volunteers');
 
     // save a volunteer data in db
-    app.post('/add-volunteer', async (req,res) => {
-        const volunteerData = req.body
-        const result = await volunteerCollection.insertOne(volunteerData)
-        console.log(result);
-        res.send(result)
-    })
+    app.post('/add-volunteer', async (req, res) => {
+      const volunteerData = req.body;
+      const result = await volunteerCollection.insertOne(volunteerData);
+      console.log(result);
+      res.send(result);
+    });
 
     // get all volunteer data from db
-    app.get('/volunteers',async(req,res)=> {
-        const result = await volunteerCollection.find().toArray()
-        res.send(result);
+    app.get('/volunteers', async (req, res) => {
+      const result = await volunteerCollection.find().toArray();
+      res.send(result);
+    });
+
+    // get all data posted by a specific user
+    app.get('/volunteers/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { 'organizer.email': email };
+      const result = await volunteerCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // delete a post from db
+    app.delete('/volunteer/:id',async(req,res)=> {
+      const id = req.params.id;
+      const query = {_id:new ObjectId(id)}
+      const result = await volunteerCollection.deleteOne(query)
+      res.send(result);
     })
 
     // Connect the client to the server	(optional starting in v4.7)
