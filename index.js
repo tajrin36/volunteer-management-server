@@ -55,12 +55,34 @@ async function run() {
     });
 
     // delete a post from db
-    app.delete('/volunteer/:id',async(req,res)=> {
+    app.delete('/volunteer/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id:new ObjectId(id)}
-      const result = await volunteerCollection.deleteOne(query)
+      const query = { _id: new ObjectId(id) };
+      const result = await volunteerCollection.deleteOne(query);
       res.send(result);
-    })
+    });
+
+    // get a single post data by id from db
+    app.get('/volunteer/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await volunteerCollection.findOne(query);
+      res.send(result);
+    });
+
+    // update data
+    app.put('/update-volunteer/:id', async (req, res) => {
+      const id = req.params.id; 
+      const volunteerData = req.body;
+      const updated = {
+        $set: volunteerData,
+      }
+      const query = {_id: new ObjectId(id)}
+      const options = {upsert:true}
+      const result = await volunteerCollection.updateOne(query,updated,options);
+      console.log(result);
+      res.send(result);
+    });
 
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
