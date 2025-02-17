@@ -89,7 +89,7 @@ async function run() {
       res.send(result);
     });
 
-
+    // request data stored in request collection
     app.post('/add-request', async (req, res) => {
       // save data in requestcollection
       const requestData = req.body;
@@ -103,6 +103,26 @@ async function run() {
       // );
       // console.log(updateRequestCount);
       res.send(result);
+    });
+
+    // get all request for a specific client
+    app.get('/my-requests/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { volunteerEmail: email };
+      const result = await requestCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // delete request
+    app.delete('/delete-request/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await requestCollection.deleteOne(query);
+      if (result.deletedCount === 1) {
+        res.send({ success: true, message: 'Request deleted successfully' });
+      } else {
+        res.status(400).send({ success: false, message: 'Request not found' });
+      }
     });
 
     // Connect the client to the server	(optional starting in v4.7)
