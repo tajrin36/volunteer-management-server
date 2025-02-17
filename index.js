@@ -31,6 +31,7 @@ async function run() {
   try {
     const db = client.db('valunteerManagement');
     const volunteerCollection = db.collection('volunteers');
+    const requestCollection = db.collection('requests');
 
     // save a volunteer data in db
     app.post('/add-volunteer', async (req, res) => {
@@ -72,15 +73,35 @@ async function run() {
 
     // update data
     app.put('/update-volunteer/:id', async (req, res) => {
-      const id = req.params.id; 
+      const id = req.params.id;
       const volunteerData = req.body;
       const updated = {
         $set: volunteerData,
-      }
-      const query = {_id: new ObjectId(id)}
-      const options = {upsert:true}
-      const result = await volunteerCollection.updateOne(query,updated,options);
+      };
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const result = await volunteerCollection.updateOne(
+        query,
+        updated,
+        options
+      );
       console.log(result);
+      res.send(result);
+    });
+
+
+    app.post('/add-request', async (req, res) => {
+      // save data in requestcollection
+      const requestData = req.body;
+      const result = await requestCollection.insertOne(requestData);
+      // decrease volunteer num
+      // const filter = { _id: new ObjectId(requestData.postId) };
+      // const update = { $inc: { volunteers_needed: -1 } };
+      // const updateRequestCount = await volunteerCollection.updateOne(
+      //   filter,
+      //   update
+      // );
+      // console.log(updateRequestCount);
       res.send(result);
     });
 
