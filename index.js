@@ -125,6 +125,31 @@ async function run() {
       }
     });
 
+    // search all volunteer post
+    app.get('/volunteers', async (req, res) => {
+      try {
+        const searchQuery = req.query.search?.trim() || '';
+        console.log('Received Search Query:', searchQuery);
+
+        let query = {};
+        if (searchQuery) {
+          query = {
+            post_title: { $regex: `^${searchQuery}`, $options: 'i' },
+          };
+        }
+
+        console.log('MongoDB Query:', JSON.stringify(query));
+
+        const result = await volunteerCollection.find(query).toArray();
+        console.log('Matching Volunteers Found:', result.length);
+
+        res.json(result);
+      } catch (error) {
+        console.error('Error in Search API:', error);
+        res.status(500).json({ error: 'Failed to fetch volunteers' });
+      }
+    });
+
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
